@@ -1,4 +1,5 @@
-reports = []
+from typing import List
+reports: List[List[int]] = []
 
 with open("reports.txt", "r") as file:
     for line in file:
@@ -45,44 +46,15 @@ for report in reports:
 print(safe_reports)
 
 # Part 2: Safe reports with problem dampener
-# Idea: Instead of breaking in report_is_safe if the report fails, we can just calculate the
-# number of failed levels, and if it is less than or equal to 1, return true
+# Just brute force it. For each unsafe report, try removing each page to see if it is ever safe
 
-def report_is_safe_v2(report, problem_dampener = 1):
-    # A report is safe if:
-    #   1. All levels are either increasing or decreasing
-    #   2. Any two adjacent levels differ by at least one and at most 3
-    #   3. There can be one unsafe level
-    decreasing = None
-    report_i = 1
-    prev_level = report[0]
-    unsafe_levels = 0
-    while(report_i < len(report)):
-        # First, figure out whether we should be decreasing or increasing
-        curr_level = report[report_i]
-        if decreasing is None:
-            if prev_level == curr_level:
-                unsafe_levels += 1
-                report_i += 1
-                prev_level = curr_level
-                break
-            decreasing = prev_level - curr_level > 0
-        diff = prev_level - curr_level
-        # If we are decreasing, the diffs should be positive
-        report_i += 1
-        prev_level = curr_level
-        if decreasing and diff >= 1 and diff <= 3:
-            continue
-        # If we are increasing, the diffs should be negative 
-        elif not decreasing and diff >= -3 and diff <= -1:
-            continue
-        else:
-            unsafe_levels += 1
-
-    return unsafe_levels <= problem_dampener
-
-safe_reports_with_dampener = 0
+safe_reports_v2 = []
 for report in reports:
-    safe_reports_with_dampener += int(report_is_safe_v2(report))
-
-print(safe_reports_with_dampener)
+    if (report_is_safe(report)):
+        safe_reports_v2.append(report)
+    else:
+        for x in range(len(report)):
+            if (report_is_safe(report[0:x] + report[x+1:])):
+                safe_reports_v2.append(report)
+                break
+print(len(safe_reports_v2))
