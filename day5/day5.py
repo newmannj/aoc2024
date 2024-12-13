@@ -55,27 +55,13 @@ sum = 0
 for update in updates:
     update_list = update.split(",")
     i = 0
-    rule_breaker = False
-    print(update_list)
+    passes = True
     while(i < len(update_list)):
-        # Maybe we can fix the list in-place as we search?
         curr_page = update_list[i]
         rules = rule_dict[curr_page]
-        # rule_breakers = set(update_list[i+1:len(update_list)]).difference(rules)
-        rule_breakers = [page for page in update_list[i+1:len(update_list)] if page not in rules]
-        if (len(rule_breakers) > 0):
-            rule_breaker = True
-            # If the current page is breaking a rule, it needs to be
-            # put further down. Remove it.
-            update_list.remove(curr_page)
-            # Then, insert it right after the last page that breaks the rule
-            last_rule_breaker_index = update_list.index(rule_breakers[-1])
-            update_list.insert(last_rule_breaker_index, curr_page)
-            # print("update_list after fix: ", update_list)
-        else:
-            # We should only keep iterating if we don't have a broken rule
-            i += 1
-    if rule_breaker:
-        sum += int(update_list[floor(len(update_list)/2)])
-print(sum)
+        if(update_list[i+1] not in rules):
+            # Do a swap
+            to_swap = update_list[i+1]
+            update_list[i] = to_swap
+            update_list[i+1] = curr_page 
         

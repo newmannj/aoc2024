@@ -4,13 +4,16 @@ class Node:
     value: str
     x: int
     y: int
+    adjacent_count: int
     visited: bool
 
     def __init__(self, value, x, y, visited = False):
         self.value = value
         self.x = x
         self.y = y
-        visited = visited
+        self.adjacent_count = 0
+        self.visited = visited
+        self.region = []
 
     def __str__(self):
         return f"{self.value}"
@@ -32,11 +35,34 @@ def as_nodes(garden: List[str]):
         rows.append([Node(plant, x, y) for x, plant in enumerate(row)])
     return rows
 
-def find_region_cost(plant, garden, region):
-    # For all neighbors of plant, keep adding to region
-    for x in range(4):
-        if x == 1:
-            
+def in_bounds(x, y, grid):
+    return (
+        y >= 0 and
+        y < len(grid) and
+        x >= 0 and 
+        x < len(grid[y])
+    )
+
+def find_region(plant: Node, garden: List[List[Node]], region: List[Node]):
+    # For all possible neighbors of plant, check if they are the same value
+    plant.region.append(plant)
+    for i in range(4):
+        next_y, next_x = [0, 0]
+        if i == 0:
+            next_y = plant.y - 1
+        elif i == 1:
+            next_y = plant.y + 1
+        elif i == 2:
+            next_x = plant.x - 1
+        else:
+            next_x = plant.x + 1
+        if (in_bounds(next_x, next_y, garden)):
+            next_plant = garden[next_y][next_x]
+            if(next_plant.value == plant.value and not next_plant.visited):
+                next_plant.visited = True
+                plant.region.append(next_plant)
+    return plant
+
 
 def count_cost(garden: List[List[Node]]):
     for y in range(len(garden)):
@@ -44,4 +70,6 @@ def count_cost(garden: List[List[Node]]):
             plant = garden[y][x]
             if not plant.visited:
                 plant.visited = True
-                find_region_cost(plant, garden, [plant])
+                print(find_region(plant, garden, [plant]))
+
+count_cost(as_nodes(test_garden))
